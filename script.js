@@ -5,23 +5,23 @@ function getYongGoProfile() {
     const defaults = {
         completed: false,
         step: 0,
-        userName: "Alex",
-        userAccount: "alex_doglover@yonggo.com",
+        userName: "",
+        userAccount: "",
         userPhoto: "",
-        userGender: "male",
-        userZodiac: "leo",
-        userBirth: "1995-08-12",
-        dogName: "薇寶",
-        breed: "玩具紅貴賓",
-        dogChip: "900073001114672",
-        dogBirth: "2026-04-15",
-        dogBlood: "unknown",
-        dogPersonality: "超級開朗",
-        age: "4～6 個月",
-        environment: "公寓／大樓",
-        source: "領養的",
-        vaccine: "已打 2 劑",
-        traits: ["超級開朗"],
+        userGender: "",
+        userZodiac: "",
+        userBirth: "",
+        dogName: "",
+        breed: "",
+        dogChip: "",
+        dogBirth: "",
+        dogBlood: "",
+        dogPersonality: "",
+        age: "",
+        environment: "",
+        source: "",
+        vaccine: "",
+        traits: [""],
         theme: "light",
         updatedAt: null
     };
@@ -106,9 +106,13 @@ function applyProfileToDOM(profileData) {
     // 1. 首頁 (home.html) 飼主與狗狗名稱連動
     const homeOwnerDog = document.getElementById("home-owner-dog-info");
     if (homeOwnerDog) {
-        homeOwnerDog.textContent = p.cleared
-            ? "飼主：尚未設定"
-            : `飼主：${p.userName} (狗狗: ${p.dogName})`;
+        if (p.cleared || (!p.userName && !p.dogName)) {
+            homeOwnerDog.textContent = "飼主：尚未設定";
+        } else {
+            const ownerText = p.userName || "未設定";
+            const dogText = p.dogName ? ` (狗狗: ${p.dogName})` : "";
+            homeOwnerDog.textContent = `飼主：${ownerText}${dogText}`;
+        }
     }
 
     // 2. 訓練中心 (training_center.html) 右上角品種標籤連動
@@ -171,7 +175,7 @@ function applyProfileToDOM(profileData) {
 
     // 4. 若有 Google 登入頭像 (userPhoto)，同步更新各頁面的飼主頭像
     if (p.userPhoto) {
-        document.querySelectorAll('img[alt="飼主頭像"], img[alt="飼主"], img[alt="Alex"]').forEach(img => {
+        document.querySelectorAll('img[alt="飼主頭像"], img[alt="飼主"]').forEach(img => {
             img.src = p.userPhoto;
         });
     }
