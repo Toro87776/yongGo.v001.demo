@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Yong GO 養狗 - 登入 / 註冊</title>
     <!-- 引入 Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -13,10 +13,11 @@
     <style>
         body {
             font-family: 'Zen Maru Gothic', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #dce5da;
+            background-color: #fffcf4;
             color: #2f5537;
             margin: 0;
             padding: 0;
+            min-height: 100dvh;
         }
 
         /* 手機容器規畫 (無外框圓角、無上下邊距，760px 以下滿版流暢顯示) */
@@ -341,7 +342,7 @@
         }
     </style>
 </head>
-<body class="antialiased text-gray-800 flex justify-center items-center min-h-screen">
+<body class="antialiased text-gray-800 flex justify-center">
     <!-- 手機寬度限制 390px 容器 -->
     <div class="app-viewport">
         <!-- 手機版進場封面動畫 (Splash Cover) -->
@@ -349,6 +350,7 @@
             <button id="splash-sound-btn" class="splash-sound-btn" type="button" aria-label="切換開場音樂" title="開啟/靜音開場音樂">
                 <i class="fa-solid fa-volume-high"></i>
             </button>
+            <audio id="splash-audio" src="./audio/magiaz-dog-441158.mp3" preload="auto" autoplay playsinline></audio>
             <!-- 深墨綠絲緞光影弧線背景 -->
             <svg class="splash-bg-waves" viewBox="0 0 480 900" preserveAspectRatio="xMidYMid slice" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <defs>
@@ -781,8 +783,8 @@
             // 情況 2：Demo 模式直接保存資料並進入首頁（不顯示彈窗）
             if (typeof saveYongGoProfile === 'function') {
                 saveYongGoProfile({
-                    userName: "Alex",
-                    userAccount: "alex.google@gmail.com"
+                    userName: "",
+                    userAccount: ""
                 });
             }
             window.location.href = 'home.html';
@@ -821,7 +823,7 @@
             }
         };
 
-        // 手機版進場封面動畫控制：預設一進入即播放 6 秒輕快愉悅開場音樂，播完自動淡出進入登入頁，或點擊立即略過
+        // 手機版進場封面動畫控制：預設一進入即播放 6 秒開場音樂 (./audio/magiaz-dog-441158.mp3 截取前 6 秒)，5.5~6.0 秒柔和淡出，播完自動進入登入頁或點擊略過
         (function initSplashCover() {
             const splash = document.getElementById('splash-cover');
             if (!splash) return;
@@ -829,210 +831,117 @@
             const soundBtn = document.getElementById('splash-sound-btn');
             const SPLASH_DURATION_MS = 6000;
             const SPLASH_DURATION_SEC = SPLASH_DURATION_MS / 1000;
+            const BASE_VOLUME = 0.85;
+
+            const splashAudio = document.getElementById('splash-audio') || new Audio('./audio/magiaz-dog-441158.mp3');
+            splashAudio.preload = 'auto';
+            splashAudio.autoplay = true;
+            splashAudio.playsInline = true;
+            splashAudio.muted = false;
+            splashAudio.volume = BASE_VOLUME;
 
             let dismissed = false;
-            let audioCtx = null;
-            let masterGain = null;
-            let musicStarted = false;
+            let musicStarted = !splashAudio.paused;
             let isMuted = false;
+            let autoplayBlocked = false;
+            let fadeTimer = null;
 
             function updateSoundIcon() {
                 if (!soundBtn) return;
                 const icon = soundBtn.querySelector('i');
                 if (!icon) return;
-                const blocked = audioCtx && audioCtx.state === 'suspended';
-                if (isMuted || blocked) {
+                if (isMuted) {
                     icon.className = 'fa-solid fa-volume-xmark';
                 } else {
                     icon.className = 'fa-solid fa-volume-high';
                 }
             }
 
-            // 合成 6 秒輕快愉悅的馬林巴 / 暖弦樂開場音樂（與動畫總時長完全一致）
-            function scheduleSplashJingle(ctx, dest, startOffsetSec = 0) {
-                const now = ctx.currentTime;
-                const totalDur = Math.max(0.4, SPLASH_DURATION_SEC - startOffsetSec);
-
-                // 整體音量包絡：柔和淡入並在 6 秒時自然收尾
-                const envGain = ctx.createGain();
-                envGain.gain.setValueAtTime(0.0001, now);
-                envGain.gain.linearRampToValueAtTime(0.85, now + 0.08);
-                envGain.gain.setValueAtTime(0.85, now + Math.max(0.1, totalDur - 0.65));
-                envGain.gain.exponentialRampToValueAtTime(0.0001, now + totalDur);
-                envGain.connect(dest);
-
-                // 溫暖低通濾波器讓音色更柔和不刺耳
-                const warmthFilter = ctx.createBiquadFilter();
-                warmthFilter.type = 'lowpass';
-                warmthFilter.frequency.setValueAtTime(3400, now);
-                warmthFilter.Q.setValueAtTime(0.7, now);
-                warmthFilter.connect(envGain);
-
-                // 彈奏單顆溫暖馬林巴/鐘琴音符
-                function playMarimba(freq, timeSec, durationSec, vol = 0.22) {
-                    if (timeSec < startOffsetSec - 0.02 || timeSec >= SPLASH_DURATION_SEC - 0.05) return;
-                    const t = now + Math.max(0, timeSec - startOffsetSec);
-
-                    const osc1 = ctx.createOscillator();
-                    const osc2 = ctx.createOscillator();
-                    const noteGain = ctx.createGain();
-
-                    osc1.type = 'sine';
-                    osc1.frequency.setValueAtTime(freq, t);
-
-                    // 柔和泛音增添輕快清脆感
-                    osc2.type = 'triangle';
-                    osc2.frequency.setValueAtTime(freq * 2, t);
-
-                    const osc2Gain = ctx.createGain();
-                    osc2Gain.gain.setValueAtTime(0.18, t);
-                    osc2Gain.gain.exponentialRampToValueAtTime(0.001, t + Math.min(0.18, durationSec));
-
-                    noteGain.gain.setValueAtTime(0.0001, t);
-                    noteGain.gain.linearRampToValueAtTime(vol, t + 0.012);
-                    noteGain.gain.exponentialRampToValueAtTime(0.0001, t + durationSec);
-
-                    osc1.connect(noteGain);
-                    osc2.connect(osc2Gain);
-                    osc2Gain.connect(noteGain);
-                    noteGain.connect(warmthFilter);
-
-                    osc1.start(t);
-                    osc2.start(t);
-                    osc1.stop(t + durationSec + 0.03);
-                    osc2.stop(t + durationSec + 0.03);
+            function fadeOutAndStop(durationMs = 250) {
+                if (fadeTimer) {
+                    clearInterval(fadeTimer);
+                    fadeTimer = null;
                 }
-
-                // 溫暖低音貝斯襯底
-                function playBass(freq, timeSec, durationSec, vol = 0.14) {
-                    if (timeSec < startOffsetSec - 0.02 || timeSec >= SPLASH_DURATION_SEC - 0.05) return;
-                    const t = now + Math.max(0, timeSec - startOffsetSec);
-                    const osc = ctx.createOscillator();
-                    const g = ctx.createGain();
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(freq, t);
-                    g.gain.setValueAtTime(0.0001, t);
-                    g.gain.linearRampToValueAtTime(vol, t + 0.03);
-                    g.gain.exponentialRampToValueAtTime(0.0001, t + durationSec);
-                    osc.connect(g);
-                    g.connect(warmthFilter);
-                    osc.start(t);
-                    osc.stop(t + durationSec + 0.03);
-                }
-
-                // 輕快柔和的暖和弦墊音
-                function playPadChord(freqs, timeSec, durationSec, vol = 0.055) {
-                    if (timeSec < startOffsetSec - 0.02 || timeSec >= SPLASH_DURATION_SEC - 0.1) return;
-                    const t = now + Math.max(0, timeSec - startOffsetSec);
-                    freqs.forEach((f) => {
-                        const osc = ctx.createOscillator();
-                        const g = ctx.createGain();
-                        osc.type = 'sine';
-                        osc.frequency.setValueAtTime(f, t);
-                        g.gain.setValueAtTime(0.0001, t);
-                        g.gain.linearRampToValueAtTime(vol, t + 0.14);
-                        g.gain.exponentialRampToValueAtTime(0.0001, t + durationSec);
-                        osc.connect(g);
-                        g.connect(warmthFilter);
-                        osc.start(t);
-                        osc.stop(t + durationSec + 0.05);
-                    });
-                }
-
-                // 0.00s - 6.00s 輕快愉悅三段式旋律（C大調暖音色，與 6 秒動畫完全同步）
-                const melody = [
-                    // 第一段 (0.00s - 2.00s)：輕快開場上行
-                    [523.25, 0.08, 0.28, 0.20], // C5
-                    [659.25, 0.30, 0.28, 0.21], // E5
-                    [783.99, 0.52, 0.32, 0.23], // G5
-                    [880.00, 0.78, 0.28, 0.22], // A5
-                    [783.99, 1.02, 0.38, 0.21], // G5
-                    [659.25, 1.38, 0.26, 0.20], // E5
-                    [587.33, 1.62, 0.28, 0.20], // D5
-
-                    // 第二段 (2.00s - 4.00s)：活潑跳躍主旋律
-                    [698.46, 1.94, 0.28, 0.21], // F5
-                    [880.00, 2.18, 0.28, 0.22], // A5
-                    [1046.50, 2.42, 0.36, 0.24], // C6
-                    [880.00, 2.74, 0.26, 0.21], // A5
-                    [783.99, 2.98, 0.30, 0.22], // G5
-                    [659.25, 3.28, 0.26, 0.20], // E5
-                    [587.33, 3.52, 0.26, 0.20], // D5
-                    [659.25, 3.76, 0.30, 0.21], // E5
-
-                    // 第三段 (4.00s - 6.00s)：愉悅上揚並溫暖收束於 6 秒
-                    [698.46, 4.08, 0.26, 0.21], // F5
-                    [783.99, 4.32, 0.26, 0.22], // G5
-                    [880.00, 4.56, 0.28, 0.22], // A5
-                    [1046.50, 4.82, 0.32, 0.24], // C6
-                    [880.00, 5.10, 0.24, 0.21], // A5
-                    [1046.50, 5.34, 0.62, 0.26], // C6
-                    [1318.51, 5.44, 0.52, 0.14], // E6 輕柔高音點綴
-                ];
-                melody.forEach(([f, t, d, v]) => playMarimba(f, t, d, v));
-
-                // 溫暖和弦墊音與低音貝斯（橫跨 6 秒）
-                const chords = [
-                    { freqs: [261.63, 329.63, 392.00, 587.33], t: 0.00, d: 1.90, v: 0.05 },  // Cadd9
-                    { freqs: [349.23, 440.00, 523.25],         t: 1.92, d: 1.32, v: 0.045 }, // Fmaj
-                    { freqs: [392.00, 493.88, 587.33],         t: 3.25, d: 0.80, v: 0.045 }, // Gmaj
-                    { freqs: [349.23, 440.00, 523.25],         t: 4.05, d: 0.90, v: 0.045 }, // Fmaj
-                    { freqs: [261.63, 329.63, 392.00, 587.33], t: 4.95, d: 1.03, v: 0.055 }, // Cadd9 收尾
-                ];
-                chords.forEach((c) => playPadChord(c.freqs, c.t, c.d, c.v));
-
-                const basses = [
-                    [130.81, 0.05, 0.85], [196.00, 1.02, 0.85], // C3, G3
-                    [174.61, 1.94, 0.85], [196.00, 3.28, 0.75], // F3, G3
-                    [174.61, 4.08, 0.80], [130.81, 4.96, 1.00], // F3, C3
-                ];
-                basses.forEach(([f, t, d]) => playBass(f, t, d));
+                if (splashAudio.paused) return;
+                const startVol = splashAudio.volume;
+                const steps = 10;
+                const stepMs = Math.max(15, durationMs / steps);
+                let currentStep = 0;
+                fadeTimer = setInterval(() => {
+                    currentStep += 1;
+                    const ratio = Math.max(0, 1 - currentStep / steps);
+                    splashAudio.volume = startVol * ratio;
+                    if (currentStep >= steps) {
+                        clearInterval(fadeTimer);
+                        fadeTimer = null;
+                        splashAudio.pause();
+                        splashAudio.currentTime = 0;
+                        splashAudio.volume = BASE_VOLUME;
+                    }
+                }, stepMs);
             }
 
-            function startSplashMusic() {
-                if (musicStarted || dismissed || isMuted) return;
-                const AudioCtx = window.AudioContext || window.webkitAudioContext;
-                if (!AudioCtx) return;
-
-                if (!audioCtx) {
-                    audioCtx = new AudioCtx();
-                    masterGain = audioCtx.createGain();
-                    masterGain.gain.setValueAtTime(0.75, audioCtx.currentTime);
-                    masterGain.connect(audioCtx.destination);
+            // 限制音樂只播放前 6 秒，並於最後 0.5 秒柔和淡出
+            splashAudio.addEventListener('timeupdate', () => {
+                if (dismissed) return;
+                const t = splashAudio.currentTime;
+                if (t >= SPLASH_DURATION_SEC) {
+                    splashAudio.pause();
+                    splashAudio.currentTime = 0;
+                    return;
                 }
+                if (t >= SPLASH_DURATION_SEC - 0.5) {
+                    const remain = Math.max(0, SPLASH_DURATION_SEC - t);
+                    splashAudio.volume = BASE_VOLUME * (remain / 0.5);
+                }
+            });
 
-                const elapsedSec = Math.min(SPLASH_DURATION_SEC - 0.5, (performance.now() - splashStartTime) / 1000);
+            function startSplashMusic() {
+                if (dismissed || isMuted) return;
+                if (!splashAudio.paused) {
+                    musicStarted = true;
+                    autoplayBlocked = false;
+                    updateSoundIcon();
+                    return;
+                }
+                if (musicStarted) return;
+                const elapsedSec = Math.max(0, (performance.now() - splashStartTime) / 1000);
+                if (elapsedSec >= SPLASH_DURATION_SEC - 0.1) return;
 
-                if (audioCtx.state === 'suspended') {
-                    audioCtx.resume().then(() => {
-                        if (!musicStarted && !dismissed && !isMuted) {
-                            musicStarted = true;
-                            scheduleSplashJingle(audioCtx, masterGain, Math.max(0, elapsedSec));
+                const syncOffset = () => {
+                    try {
+                        if (splashAudio.readyState >= 1) {
+                            splashAudio.currentTime = elapsedSec;
                         }
+                    } catch (_) {}
+                };
+                syncOffset();
+                splashAudio.volume = BASE_VOLUME;
+                splashAudio.muted = isMuted;
+
+                const playPromise = splashAudio.play();
+                if (playPromise && typeof playPromise.then === 'function') {
+                    playPromise.then(() => {
+                        if (dismissed) {
+                            splashAudio.pause();
+                            return;
+                        }
+                        musicStarted = true;
+                        autoplayBlocked = false;
                         updateSoundIcon();
                     }).catch(() => {
+                        autoplayBlocked = true;
                         updateSoundIcon();
                     });
                 } else {
                     musicStarted = true;
-                    scheduleSplashJingle(audioCtx, masterGain, Math.max(0, elapsedSec));
+                    autoplayBlocked = false;
                     updateSoundIcon();
                 }
             }
 
             function stopSplashMusic() {
-                if (!audioCtx || !masterGain) return;
-                try {
-                    const now = audioCtx.currentTime;
-                    masterGain.gain.cancelScheduledValues(now);
-                    masterGain.gain.setValueAtTime(masterGain.gain.value, now);
-                    masterGain.gain.linearRampToValueAtTime(0.0001, now + 0.25);
-                    setTimeout(() => {
-                        if (audioCtx && audioCtx.state !== 'closed') {
-                            audioCtx.close().catch(() => {});
-                        }
-                    }, 300);
-                } catch (_) {}
+                fadeOutAndStop(250);
             }
 
             const splashStartTime = performance.now();
@@ -1054,18 +963,17 @@
             if (soundBtn) {
                 soundBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
+                    if (autoplayBlocked && !musicStarted && !dismissed) {
+                        isMuted = false;
+                        splashAudio.muted = false;
+                        startSplashMusic();
+                        updateSoundIcon();
+                        return;
+                    }
                     isMuted = !isMuted;
-                    if (isMuted) {
-                        if (masterGain && audioCtx) {
-                            masterGain.gain.setTargetAtTime(0.0001, audioCtx.currentTime, 0.05);
-                        }
-                    } else {
-                        if (masterGain && audioCtx) {
-                            masterGain.gain.setTargetAtTime(0.75, audioCtx.currentTime, 0.05);
-                        }
-                        if (!musicStarted) {
-                            startSplashMusic();
-                        }
+                    splashAudio.muted = isMuted;
+                    if (!isMuted && !musicStarted && !dismissed) {
+                        startSplashMusic();
                     }
                     updateSoundIcon();
                 });

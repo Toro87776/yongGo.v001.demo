@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>YongGO 養狗 - App 首頁</title>
     <!-- 引入 Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -37,24 +37,24 @@
     <style>
         body {
             font-family: 'Zen Maru Gothic', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #dce5da;
+            background-color: #fffcf4;
             color: #2f5537;
             margin: 0;
             padding: 0;
+            min-height: 100dvh;
         }
 
         /* 手機容器規畫 (無外框圓角、無上下邊距，760px 以下滿版流暢顯示) */
         .app-viewport {
             width: 100%;
             max-width: 480px;
-            height: 100dvh;
+            min-height: 100dvh;
             margin: 0 auto;
             background-color: #fffcf4;
             position: relative;
             box-shadow: 0 0 24px rgba(33, 61, 39, 0.1);
             display: flex;
             flex-direction: column;
-            overflow: hidden;
             border-radius: 0;
         }
 
@@ -71,10 +71,11 @@
 
         .app-viewport > main {
             flex: 1 1 auto;
-            overflow-y: auto;
-            overscroll-behavior: contain;
             -ms-overflow-style: none;
             scrollbar-width: none;
+        }
+        .app-viewport > nav {
+            padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
         }
         .app-viewport > main::-webkit-scrollbar {
             display: none;
@@ -178,7 +179,7 @@
         }
     </style>
 </head>
-<body class="flex justify-center items-center min-h-screen">
+<body class="flex justify-center">
     <div class="app-viewport">
         <!-- 頂部 Header 區塊 (Logo與頭像) -->
         <header class="px-5 pt-6 pb-2 flex items-center justify-between bg-[#fffcf4]">
@@ -357,7 +358,7 @@
                     </div>
 
                     <div class="mt-4 pt-2 border-t border-white/20 flex items-center justify-between text-xs relative z-10">
-                        <span id="home-owner-dog-info" class="font-bold opacity-90">飼主：Alex (狗狗: 薇寶)</span>
+                        <span id="home-owner-dog-info" class="font-bold opacity-90">飼主：尚未設定</span>
                         <span class="bg-black/20 px-2 py-0.5 rounded-full font-mono">ID: #YG-8839</span>
                     </div>
                 </div>
@@ -381,7 +382,7 @@
         </main>
 
         <!-- 固定底部 Navigation (深綠色 Icon 5區) -->
-        <nav class="shrink-0 w-full bg-white border-t border-gray-100 px-3 py-2 flex justify-around items-center z-50 rounded-t-2xl shadow-lg">
+        <nav class="sticky bottom-0 shrink-0 w-full bg-white border-t border-gray-100 px-3 py-2 flex justify-around items-center z-50 rounded-t-2xl shadow-lg">
             
             <!-- 1. 首頁 (Active) -->
             <button onclick="location.href='home.html'" class="flex flex-col items-center py-1 px-3 text-brand font-black">

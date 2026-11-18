@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>YongGO 養狗 - 我的頁面</title>
     <!-- 引入 Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -37,10 +37,11 @@
     <style>
         body {
             font-family: 'Zen Maru Gothic', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #dce5da;
+            background-color: #fffcf4;
             color: #2f5537;
             margin: 0;
             padding: 0;
+            min-height: 100dvh;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
@@ -48,14 +49,13 @@
         .app-viewport {
             width: 100%;
             max-width: 480px;
-            height: 100dvh;
+            min-height: 100dvh;
             margin: 0 auto;
             background-color: #fffcf4;
             position: relative;
             box-shadow: 0 0 24px rgba(33, 61, 39, 0.1);
             display: flex;
             flex-direction: column;
-            overflow: hidden;
             border-radius: 0;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
@@ -74,10 +74,11 @@
 
         .app-viewport > main {
             flex: 1 1 auto;
-            overflow-y: auto;
-            overscroll-behavior: contain;
             -ms-overflow-style: none;
             scrollbar-width: none;
+        }
+        .app-viewport > nav {
+            padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
         }
         .app-viewport > main::-webkit-scrollbar {
             display: none;
@@ -141,7 +142,7 @@
         }
     </style>
 </head>
-<body class="flex justify-center items-center min-h-screen">
+<body class="flex justify-center">
 
     <div id="app-viewport" class="app-viewport">
         
@@ -174,20 +175,20 @@
                 <!-- 飼主與狗狗雙頭像 -->
                 <div class="relative w-14 h-14 shrink-0">
                     <div class="w-12 h-12 rounded-full border-2 border-white overflow-hidden shadow-xs">
-                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" alt="Alex" class="w-full h-full object-cover">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" alt="飼主頭像" class="w-full h-full object-cover">
                     </div>
                     <div class="absolute -bottom-1 -right-1 w-7 h-7 rounded-full border-2 border-brand bg-brand-pinkSoft overflow-hidden shadow-xs">
-                        <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=150&q=80" alt="薇寶" class="w-full h-full object-cover">
+                        <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=150&q=80" alt="狗狗頭像" class="w-full h-full object-cover">
                     </div>
                 </div>
 
                 <div class="flex-1 space-y-0.5">
                     <div class="flex items-center gap-2">
-                        <h2 id="card-owner-name" class="text-base font-black">Alex</h2>
+                        <h2 id="card-owner-name" class="text-base font-black">未設定</h2>
                         <span class="text-[10px] bg-brand-pink text-white font-extrabold px-2 py-0.2 rounded-full">愛犬守護者</span>
                     </div>
-                    <p id="card-dog-summary" class="text-xs text-brand-light/80 font-medium">狗狗：薇寶 (玩具紅貴賓)</p>
-                    <span id="card-owner-account" class="text-[10px] text-brand-cream/60 font-mono block">帳號：alex_doglover@yonggo.com</span>
+                    <p id="card-dog-summary" class="text-xs text-brand-light/80 font-medium">狗狗：尚未設定</p>
+                    <span id="card-owner-account" class="text-[10px] text-brand-cream/60 font-mono block">帳號：尚未登入</span>
                 </div>
             </div>
         </section>
@@ -212,7 +213,7 @@
                 <div id="sec-personal" class="toggle-content px-4 pb-4 space-y-3 pt-1 border-t border-brand/5">
                     <div class="space-y-1">
                         <label class="text-[11px] font-extrabold text-brand/70 block">飼主名字 / 暱稱</label>
-                        <input id="input-owner-name" type="text" value="Alex" placeholder="請輸入名字或暱稱" class="w-full px-3 py-2 bg-brand-cream rounded-app-sm border border-brand/15 text-xs font-bold text-brand focus:outline-none focus:border-brand">
+                        <input id="input-owner-name" type="text" value="" placeholder="請輸入名字或暱稱" class="w-full px-3 py-2 bg-brand-cream rounded-app-sm border border-brand/15 text-xs font-bold text-brand focus:outline-none focus:border-brand">
                     </div>
 
                     <div class="grid grid-cols-2 gap-2.5">
@@ -220,7 +221,7 @@
                             <label class="text-[11px] font-extrabold text-brand/70 block">性別</label>
                             <select id="input-owner-gender" class="w-full px-3 py-2 bg-brand-cream rounded-app-sm border border-brand/15 text-xs font-bold text-brand focus:outline-none focus:border-brand">
                                 <option value="">請選擇</option>
-                                <option value="male" selected>男</option>
+                                <option value="male">男</option>
                                 <option value="female">女</option>
                                 <option value="other">不公開</option>
                             </select>
@@ -229,7 +230,7 @@
                             <label class="text-[11px] font-extrabold text-brand/70 block">星座</label>
                             <select id="input-owner-zodiac" class="w-full px-3 py-2 bg-brand-cream rounded-app-sm border border-brand/15 text-xs font-bold text-brand focus:outline-none focus:border-brand">
                                 <option value="">請選擇</option>
-                                <option value="leo" selected>獅子座 ♌</option>
+                                <option value="leo">獅子座 ♌</option>
                                 <option value="aries">牡羊座 ♈</option>
                                 <option value="taurus">金牛座 ♉</option>
                                 <option value="gemini">雙子座 ♊</option>
@@ -247,7 +248,7 @@
 
                     <div class="space-y-1">
                         <label class="text-[11px] font-extrabold text-brand/70 block">出生年月日</label>
-                        <input id="input-owner-birth" type="date" value="1995-08-12" class="w-full px-3 py-2 bg-brand-cream rounded-app-sm border border-brand/15 text-xs font-bold text-brand focus:outline-none focus:border-brand">
+                        <input id="input-owner-birth" type="date" value="" class="w-full px-3 py-2 bg-brand-cream rounded-app-sm border border-brand/15 text-xs font-bold text-brand focus:outline-none focus:border-brand">
                     </div>
                 </div>
             </section>
@@ -262,7 +263,7 @@
                         </div>
                         <div>
                             <h3 class="text-sm font-black text-brand">狗狗檔案 (多犬支援)</h3>
-                            <span id="current-dog-label" class="text-[10px] text-brand-pink font-bold">目前選擇：薇寶</span>
+                            <span id="current-dog-label" class="text-[10px] text-brand-pink font-bold">目前選擇：尚未設定</span>
                         </div>
                     </div>
                     <i id="arrow-sec-dog" class="fa-solid fa-chevron-down text-brand/50 text-xs rotate-arrow"></i>
@@ -273,8 +274,8 @@
                     
                     <!-- 多犬切換 Tabs -->
                     <div class="flex items-center space-x-2 overflow-x-auto no-scrollbar pt-1">
-                        <button onclick="switchDogProfile(document.getElementById('input-dog-name').value || '薇寶')" class="px-3 py-1 bg-brand text-white text-xs font-extrabold rounded-full shrink-0 shadow-2xs flex items-center gap-1">
-                            <i class="fa-solid fa-paw text-[10px]"></i> <span id="dog-tab-btn-text">薇寶</span>
+                        <button onclick="switchDogProfile(document.getElementById('input-dog-name').value || '未命名')" class="px-3 py-1 bg-brand text-white text-xs font-extrabold rounded-full shrink-0 shadow-2xs flex items-center gap-1">
+                            <i class="fa-solid fa-paw text-[10px]"></i> <span id="dog-tab-btn-text">未命名</span>
                         </button>
                         <button onclick="triggerAction('新增第二隻狗狗檔案')" class="px-3 py-1 bg-brand-cream hover:bg-brand-light text-brand text-xs font-bold rounded-full shrink-0 border border-brand/15 flex items-center gap-1">
                             <i class="fa-solid fa-plus text-[10px]"></i> 新增狗狗
@@ -283,29 +284,29 @@
 
                     <div class="space-y-1">
                         <label class="text-[11px] font-extrabold text-brand/70 block">名字 / 暱稱</label>
-                        <input id="input-dog-name" type="text" value="薇寶" placeholder="狗狗名字" class="w-full px-3 py-2 bg-brand-cream rounded-app-sm border border-brand/15 text-xs font-bold text-brand focus:outline-none focus:border-brand">
+                        <input id="input-dog-name" type="text" value="" placeholder="狗狗名字" class="w-full px-3 py-2 bg-brand-cream rounded-app-sm border border-brand/15 text-xs font-bold text-brand focus:outline-none focus:border-brand">
                     </div>
 
                     <div class="space-y-1">
                         <label class="text-[11px] font-extrabold text-brand/70 block">品種</label>
-                        <input id="input-dog-breed" type="text" value="玩具紅貴賓" placeholder="如：貴賓、柴犬" class="w-full px-3 py-2 bg-brand-cream rounded-app-sm border border-brand/15 text-xs font-bold text-brand focus:outline-none focus:border-brand">
+                        <input id="input-dog-breed" type="text" value="" placeholder="如：貴賓、柴犬" class="w-full px-3 py-2 bg-brand-cream rounded-app-sm border border-brand/15 text-xs font-bold text-brand focus:outline-none focus:border-brand">
                     </div>
 
                     <div class="space-y-1">
                         <label class="text-[11px] font-extrabold text-brand/70 block">晶片號碼</label>
-                        <input id="input-dog-chip" type="text" value="900073001114672" placeholder="請輸入15位晶片碼" class="w-full px-3 py-2 bg-brand-cream rounded-app-sm border border-brand/15 text-xs font-mono font-bold text-brand focus:outline-none focus:border-brand">
+                        <input id="input-dog-chip" type="text" value="" placeholder="請輸入15位晶片碼" class="w-full px-3 py-2 bg-brand-cream rounded-app-sm border border-brand/15 text-xs font-mono font-bold text-brand focus:outline-none focus:border-brand">
                     </div>
 
                     <div class="grid grid-cols-2 gap-2.5">
                         <div class="space-y-1">
                             <label class="text-[11px] font-extrabold text-brand/70 block">出生年月日</label>
-                            <input id="input-dog-birth" type="date" value="2026-04-15" class="w-full px-3 py-2 bg-brand-cream rounded-app-sm border border-brand/15 text-xs font-bold text-brand focus:outline-none focus:border-brand">
+                            <input id="input-dog-birth" type="date" value="" class="w-full px-3 py-2 bg-brand-cream rounded-app-sm border border-brand/15 text-xs font-bold text-brand focus:outline-none focus:border-brand">
                         </div>
                         <div class="space-y-1">
                             <label class="text-[11px] font-extrabold text-brand/70 block">血型</label>
                             <select id="input-dog-blood" class="w-full px-3 py-2 bg-brand-cream rounded-app-sm border border-brand/15 text-xs font-bold text-brand focus:outline-none focus:border-brand">
                                 <option value="">請選擇</option>
-                                <option value="unknown" selected>未知</option>
+                                <option value="unknown">未知</option>
                                 <option value="dea11">DEA 1.1 陽性</option>
                                 <option value="dea12">DEA 1.2 陽性</option>
                                 <option value="dea7">DEA 7 陽性</option>
@@ -315,7 +316,7 @@
 
                     <div class="space-y-1">
                         <label class="text-[11px] font-extrabold text-brand/70 block">個性標籤</label>
-                        <input id="input-dog-trait" type="text" value="超級開朗" placeholder="描述狗狗的個性特色" class="w-full px-3 py-2 bg-brand-cream rounded-app-sm border border-brand/15 text-xs font-bold text-brand focus:outline-none focus:border-brand">
+                        <input id="input-dog-trait" type="text" value="" placeholder="描述狗狗的個性特色" class="w-full px-3 py-2 bg-brand-cream rounded-app-sm border border-brand/15 text-xs font-bold text-brand focus:outline-none focus:border-brand">
                     </div>
                 </div>
             </section>
@@ -402,7 +403,7 @@
 
             <!-- 登出與安全按鈕 -->
             <div class="pt-2 text-center">
-                <button onclick="location.href='index.html'" class="text-xs font-bold text-gray-400 hover:text-brand-pink transition-colors">
+                <button onclick="location.href='loggin.html'" class="text-xs font-bold text-gray-400 hover:text-brand-pink transition-colors">
                     <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i> 登出 YongGO 養狗帳號
                 </button>
             </div>
@@ -410,7 +411,7 @@
         </main>
 
         <!-- 固定底部 Navigation (深綠色 Icon 5區: 首頁｜訓練｜紀錄｜AI助教｜我的) -->
-        <nav class="shrink-0 w-full bg-white border-t border-gray-100 px-3 py-2 flex justify-around items-center z-50 rounded-t-2xl shadow-lg">
+        <nav class="sticky bottom-0 shrink-0 w-full bg-white border-t border-gray-100 px-3 py-2 flex justify-around items-center z-50 rounded-t-2xl shadow-lg">
             
             <button onclick="location.href='home.html'" class="flex flex-col items-center py-1 px-3 text-brand/50 hover:text-brand font-bold transition-colors">
                 <i class="fa-solid fa-house text-xl mb-0.5"></i>
@@ -504,12 +505,12 @@
 
         // 儲存修改並寫入共用 localStorage
         function saveAllSettings() {
-            const ownerName = document.getElementById('input-owner-name').value.trim() || 'Alex';
+            const ownerName = document.getElementById('input-owner-name').value.trim();
             const ownerGender = document.getElementById('input-owner-gender').value;
             const ownerZodiac = document.getElementById('input-owner-zodiac').value;
             const ownerBirth = document.getElementById('input-owner-birth').value;
-            const dogName = document.getElementById('input-dog-name').value.trim() || '薇寶';
-            const dogBreed = document.getElementById('input-dog-breed').value.trim() || '玩具紅貴賓';
+            const dogName = document.getElementById('input-dog-name').value.trim();
+            const dogBreed = document.getElementById('input-dog-breed').value.trim();
             const dogChip = document.getElementById('input-dog-chip').value.trim();
             const dogBirth = document.getElementById('input-dog-birth').value;
             const dogBlood = document.getElementById('input-dog-blood').value;
@@ -534,7 +535,8 @@
                     traits: updatedTraits
                 });
             }
-            showAppModal('儲存完成', `已成功更新「${ownerName}」與狗狗「${dogName}（${dogBreed}）」的資料，並已同步至所有頁面！`);
+            const summaryText = [ownerName || '未設定飼主', dogName ? `狗狗「${dogName}${dogBreed ? `（${dogBreed}）` : ''}」` : ''].filter(Boolean).join(' 與 ');
+            showAppModal('儲存完成', `已成功更新${summaryText}的資料，並已同步至所有頁面！`);
         }
 
         // 清空個人與狗狗資料並同步至共用 localStorage

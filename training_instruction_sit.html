@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>YongGO 養狗 - 坐下訓練指引</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -32,10 +32,11 @@
     <style>
         body {
             font-family: 'Zen Maru Gothic', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #dce5da;
+            background-color: #fffcf4;
             color: #393939;
             margin: 0;
             padding: 0;
+            min-height: 100dvh;
         }
 
         .app-viewport {
@@ -79,7 +80,7 @@
         }
     </style>
 </head>
-<body class="flex justify-center items-start min-h-screen">
+<body class="flex justify-center">
     <div class="app-viewport">
         <!-- 頂部 Header -->
         <header class="px-5 pt-6 pb-3 flex items-center justify-between bg-[#fffcf4] sticky top-0 z-30">
@@ -263,7 +264,7 @@
         </main>
 
         <!-- 底部大條開始訓練按鈕 -->
-        <div class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] px-5 pb-5 pt-3 bg-gradient-to-t from-[#fffcf4] via-[#fffcf4]/95 to-transparent z-40">
+        <div class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] px-5 pt-3 bg-gradient-to-t from-[#fffcf4] via-[#fffcf4]/95 to-transparent z-40" style="padding-bottom: calc(1.25rem + env(safe-area-inset-bottom));">
             <a href="countdown.html" class="start-bar-btn w-full py-3.5 rounded-full flex items-center justify-center text-base font-black text-white tracking-wider no-underline">
                 開始訓練
             </a>

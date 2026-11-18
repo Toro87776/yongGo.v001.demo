@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>YongGO 養狗 - 坐下訓練計時</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -10,10 +10,11 @@
     <style>
         body {
             font-family: 'Zen Maru Gothic', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #e4edd1;
+            background-color: #fffcf4;
             color: #393939;
             margin: 0;
             padding: 0;
+            min-height: 100dvh;
         }
         .app-viewport {
             width: 100%;
@@ -23,6 +24,7 @@
             background-color: #fffcf4;
             display: flex;
             flex-direction: column;
+            padding-bottom: env(safe-area-inset-bottom);
         }
         @media (max-width: 760px) {
             .app-viewport {
@@ -94,7 +96,7 @@
         }
     </style>
 </head>
-<body class="flex justify-center items-start min-h-screen">
+<body class="flex justify-center">
     <div class="app-viewport">
         <header class="px-5 pt-6 pb-3 flex items-center justify-between bg-[#fffcf4]">
             <button type="button" onclick="location.href='training_instruction_sit.html'" aria-label="返回" class="w-10 h-10 rounded-full bg-white border border-[#e4edd1] shadow-xs flex items-center justify-center text-[#2f553c]">
